@@ -47,8 +47,15 @@ class TopicsController extends Controller
 
 	public function edit(Topic $topic)
 	{
-        $this->authorize('update', $topic);
-		return view('topics.create_and_edit', compact('topic'));
+        try {
+            $this->authorize('update', $topic);
+            $categories = Category::all();
+            return view('topics.create_and_edit', compact('topic', 'categories'));
+        } catch (\Exception $e) {
+            abort(500, $e->getMessage());
+        }
+        
+        
 	}
 
 	public function update(TopicRequest $request, Topic $topic)
@@ -62,7 +69,7 @@ class TopicsController extends Controller
 	public function destroy(Topic $topic)
 	{
 		$this->authorize('destroy', $topic);
-		$topic->delete();
+        $topic->delete();
 
 		return redirect()->route('topics.index')->with('message', '删除成功');
 	}
